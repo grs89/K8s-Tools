@@ -1,0 +1,28 @@
+# Archivos de configuración sensibles
+*.env
+*.yaml
+*.yml
+!example*.yaml
+!example*.yml
+
+# Archivos de logs
+*.log
+*.out
+*.err
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de editor/IDE
+.vscode/
+.idea/
+*.swp
+
+# Archivos de dependencias
+node_modules/
+vendor/
+
+# Archivos de Kubernetes generados
+*.kubeconfig
+*.kube/

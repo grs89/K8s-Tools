@@ -1,0 +1,30 @@
+grafana:
+  enabled: true
+
+  adminPassword: "admin"
+
+  service:
+    type: NodePort
+    nodePort: 32000
+
+  persistence:
+    enabled: true
+    storageClassName: nfs-client
+    size: 5Gi
+
+  sidecar:
+    dashboards:
+      enabled: true
+      label: grafana_dashboard
+      labelValue: "1"
+
+prometheus:
+  prometheusSpec:
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: nfs-client
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 10Gi

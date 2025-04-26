@@ -1,9 +1,8 @@
 # Archivos de configuración sensibles
 *.env
-*.yaml
-*.yml
-!example*.yaml
-!example*.yml
+#*.yaml
+#*.yml
+
 
 # Archivos de logs
 *.log

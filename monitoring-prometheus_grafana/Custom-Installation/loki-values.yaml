@@ -1,0 +1,18 @@
+loki:
+  persistence:
+    enabled: true
+    storageClassName: nfs-client
+    accessModes:
+      - ReadWriteOnce
+    size: 10Gi
+  auth_enabled: false
+
+promtail:
+  enabled: true
+
+grafana:
+  enabled: false
+
+service:
+  type: NodePort
+  nodePort: 31001

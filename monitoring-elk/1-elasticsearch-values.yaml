@@ -1,0 +1,15 @@
+replicas: 3
+minimumMasterNodes: 2
+resources:
+  requests:
+    cpu: 1
+    memory: 4Gi
+  limits:
+    cpu: 2
+    memory: 8Gi
+volumeClaimTemplate:
+  accessModes: [ "ReadWriteOnce" ]
+  storageClassName: nfs-client # Opcional
+  resources:
+    requests:
+      storage: 50Gi

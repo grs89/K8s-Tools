@@ -1,10 +1,6 @@
-<<<<<<< HEAD
-# K8S
+
 =======
 # K8s-Tools
->>>>>>> 18f955c3e8289d838115bf94044fd27c1cb77f8a
-
-
 
 ## Getting started
 
@@ -18,22 +14,11 @@ Already a pro? Just edit this README.md and make it your own. Want to make it ea
 - [ ] [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
 
 ```
-cd existing_repo
-<<<<<<< HEAD
-git remote add origin https://gitlab.com/grs89/k8s.git
-=======
-git remote add origin https://gitlab.com/grs89/k8s-tools.git
->>>>>>> 18f955c3e8289d838115bf94044fd27c1cb77f8a
-git branch -M main
-git push -uf origin main
-```
+
 
 ## Integrate with your tools
 
-<<<<<<< HEAD
-- [ ] [Set up project integrations](https://gitlab.com/grs89/k8s/-/settings/integrations)
-
-=======
+\
 - [ ] [Set up project integrations](https://gitlab.com/grs89/k8s-tools/-/settings/integrations)
 
 ## Collaborate with your team

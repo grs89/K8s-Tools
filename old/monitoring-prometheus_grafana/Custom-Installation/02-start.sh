@@ -15,10 +15,15 @@ helm repo add prometheus-community https://prometheus-community.github.io/helm-c
 helm repo add grafana https://grafana.github.io/helm-charts
 helm repo update
 
+
+#helm upgrade prometheus prometheus-community/kube-prometheus-stack \
+#  --namespace monitoring \
+#  -f prometheus-values.yaml
+
 echo "📦 Instalando Prometheus (kube-prometheus-stack)..."
 helm install prometheus prometheus-community/kube-prometheus-stack \
   --namespace monitoring --create-namespace \
-  -f values.yaml
+  -f prometheus-values.yaml
 
 echo "📦 Instalando Loki stack..."
 helm install loki grafana/loki-stack \
@@ -33,3 +38,9 @@ helm install tempo grafana/tempo \
 echo ""
 echo "✅ Stack de monitoreo desplegado correctamente"
 echo "➡️  Para acceder a Grafana: http://<node-ip>:<port> (según lo definido en values.yaml)"
+
+echo ""
+echo "To uninstall everything, run:"
+echo "  helm uninstall prometheus -n monitoring"
+echo "  helm uninstall loki -n monitoring"
+echo "  helm uninstall tempo -n monitoring"

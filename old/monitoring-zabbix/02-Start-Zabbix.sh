@@ -35,3 +35,5 @@ echo "🔹 Zabbix:  http://$NODE_IP:$NODE_PORT"
 echo ""
 echo "To uninstall everything, run:"
 echo "helm uninstall zabbix -n zabbix"
+
+#helm show values zabbix-community/zabbix > zabbix-values.yaml

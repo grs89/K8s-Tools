@@ -6,3 +6,11 @@ server:
     ports:
       http: 80
       https: 443
+
+redis:
+  metrics:
+    enabled: true
+  persistence:
+    enabled: true
+    size: 1Gi
+    storageClass: nfs-client # Ajusta a tu clúster si usas otro SC

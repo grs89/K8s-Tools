@@ -26,6 +26,8 @@ helm install prometheus prometheus-community/kube-prometheus-stack \
   --set grafana.adminPassword='admin' \
   --set grafana.service.type=NodePort \
   --set grafana.service.nodePort=32000 \
+  --set grafana.hostNetwork=true \
+  --set grafana.defaultPreferences.timezone="browser" \
   --set 'prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.storageClassName=nfs-client' \
   --set 'prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.resources.requests.storage=10Gi' \
   --set 'prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.accessModes[0]=ReadWriteOnce'

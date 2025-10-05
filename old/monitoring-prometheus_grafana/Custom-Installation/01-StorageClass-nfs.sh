@@ -9,7 +9,7 @@
 set -e
 
 # Configurable values
-NFS_SERVER="192.168.10.112"
+NFS_SERVER="192.168.64.115"
 NFS_PATH="/data/nfs/monitoring"
 STORAGE_CLASS_NAME="nfs-client"
 

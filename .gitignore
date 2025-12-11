@@ -1,5 +1,6 @@
 # Archivos de configuración sensibles
 *.env
+config.env
 #*.yaml
 #*.yml
 
@@ -8,6 +9,7 @@
 *.log
 *.out
 *.err
+k8s-tools-*.log
 
 # Archivos de sistema
 .DS_Store
@@ -25,3 +27,8 @@ vendor/
 # Archivos de Kubernetes generados
 *.kubeconfig
 *.kube/
+
+# Archivos temporales de instalación
+dashboard-admin.yaml
+argocd-values.yaml
+*-values-generated.yaml

@@ -1,91 +1,275 @@
-
-=======
 # K8s-Tools
 
-## Getting started
+> Colección de scripts automatizados para instalación de herramientas esenciales en Kubernetes
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+K8s-Tools es un conjunto de scripts de Bash que facilitan la instalación y configuración de componentes comunes en clusters de Kubernetes, incluyendo monitoring, almacenamiento dinámico y aplicaciones GitOps.
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+## 📦 Componentes Disponibles
 
-## Add your files
+| Categoría | Componente | Descripción | Script |
+|-----------|------------|-------------|--------|
+| **Monitoring** | Kubernetes Dashboard | UI web para gestión visual del cluster | [01-kubernetes-dashboard](01-Monitoring/01-kubernetes-dashboard/) |
+| **Monitoring** | Metrics Server | Métricas de CPU/memoria para pods y nodos | [01-metrics-server](01-Monitoring/01-metrics-server/) |
+| **Storage** | NFS Provisioner | Aprovisionamiento dinámico de volúmenes NFS | [NFS-StorageClass.sh](02-Storage/) |
+| **Apps** | ArgoCD | Continuous Delivery basado en GitOps | [Argocd](03-Apps/Argocd/) |
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+## 🚀 Inicio Rápido
 
+### Prerrequisitos
+
+Antes de usar estos scripts, asegúrate de tener:
+
+- ✅ **Kubernetes cluster** operativo (v1.20+)
+- ✅ **kubectl** instalado y configurado
+- ✅ **Helm 3** instalado (v3.0+)
+- ✅ **Acceso admin** al cluster (kubeconfig configurado)
+- ✅ **Servidor NFS** accesible (solo para storage NFS)<parameter name="bash">
+# Verificar prerrequisitos
+kubectl version --client
+helm version
+kubectl cluster-info
 ```
 
+### Configuración
 
-## Integrate with your tools
+1. **Clona el repositorio** (o descarga los scripts):
+   ```bash
+   git clone <tu-repo>/K8s-Tools.git
+   cd K8s-Tools
+   ```
 
-\
-- [ ] [Set up project integrations](https://gitlab.com/grs89/k8s-tools/-/settings/integrations)
+2. **Configura tus variables de entorno**:
+   ```bash
+   # Copia el archivo de ejemplo
+   cp config.env.example config.env
+   
+   # Edita config.env con tus valores
+   nano config.env
+   ```
 
-## Collaborate with your team
+3. **Revisa las versiones** de componentes en `versions.conf` (opcional).
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
->>>>>>> 18f955c3e8289d838115bf94044fd27c1cb77f8a
+### Instalación de Componentes
 
-## Test and Deploy
+#### Opción 1: Instalación Básica (un componente)
 
-Use the built-in continuous integration in GitLab.
+```bash
+# Ejemplo: Instalar Kubernetes Dashboard
+cd 01-Monitoring/01-kubernetes-dashboard
+./kubernetes-dashboard.sh
+```
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+#### Opción 2: Instalación Completa
 
-***
+```bash
+# 1. Storage (requerido para otros componentes)
+./02-Storage/NFS-StorageClass.sh
 
-# Editing this README
+# 2. Monitoring
+./01-Monitoring/01-metrics-server/metrics-server.sh
+./01-Monitoring/01-kubernetes-dashboard/kubernetes-dashboard.sh
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+# 3. Applications
+./03-Apps/Argocd/01-argo_cd.sh
+```
 
-## Suggestions for a good README
+### Validación
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+Después de instalar componentes, verifica que todo funcione:
 
-## Name
-Choose a self-explaining name for your project.
+```bash
+# Ejecutar script de validación
+./scripts/validate.sh
+```
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+## 📖 Documentación Detallada
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+### Configuración (`config.env`)
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+El archivo `config.env` (creado desde `config.env.example`) contiene todas las variables configurables:
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+```bash
+# Ejemplo de configuración NFS
+NFS_SERVER="192.168.10.112"
+NFS_PATH="/data/nfs/monitoring"
+STORAGE_CLASS_NAME="nfs-client"
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+# Puertos NodePort
+DASHBOARD_NODEPORT="32000"
+ARGOCD_HTTP_PORT="32080"
+```
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+### Versiones (`versions.conf`)
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+Control centralizado de versiones de todos los componentes. Edita este archivo para actualizar o fijar versiones específicas:
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+```bash
+DASHBOARD_VERSION="v2.7.0"
+ARGOCD_CHART_VERSION="5.51.6"
+METRICS_SERVER_VERSION="v0.7.0"
+```
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+## 🔧 Uso de Scripts Individuales
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+### Kubernetes Dashboard
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+```bash
+cd 01-Monitoring/01-kubernetes-dashboard
+./kubernetes-dashboard.sh
 
-## License
-For open source projects, say how it is licensed.
+# Acceso: https://<node-ip>:32000
+# Obtener token:
+kubectl -n kubernetes-dashboard create token admin-user
+```
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+### Metrics Server
+
+```bash
+cd 01-Monitoring/01-metrics-server
+./metrics-server.sh
+
+# Verificar métricas:
+kubectl top nodes
+kubectl top pods -A
+```
+
+### NFS Storage Class
+
+```bash
+# Edita config.env primero con tu servidor NFS
+cd 02-Storage
+./NFS-StorageClass.sh
+
+# Verificar:
+kubectl get storageclass
+```
+
+### ArgoCD
+
+```bash
+cd 03-Apps/Argocd
+./01-argo_cd.sh
+
+# Acceso: https://<node-ip>:32081
+# Usuario: admin
+# Contraseña: (mostrada al finalizar instalación)
+```
+
+## 🛠️ Scripts Utilitarios
+
+### `scripts/common.sh`
+
+Biblioteca de funciones compartidas:
+- Logging estructurado
+- Validación de prerrequisitos
+- Gestión de Helm
+- Utilidades de Kubernetes
+
+### `scripts/validate.sh`
+
+Valida que los componentes instalados estén funcionando:
+
+```bash
+./scripts/validate.sh
+```
+
+## 📁 Estructura del Proyecto
+
+```
+K8s-Tools/
+├── README.md                           # Este archivo
+├── config.env.example                  # Plantilla de configuración
+├── versions.conf                       # Control de versiones
+├── .gitignore                         
+│
+├── scripts/                           # Scripts compartidos
+│   ├── common.sh                      # Funciones compartidas
+│   └── validate.sh                    # Validación de instalaciones
+│
+├── 01-Monitoring/                     # Componentes de monitoreo
+│   ├── 01-kubernetes-dashboard/
+│   │   └── kubernetes-dashboard.sh
+│   └── 01-metrics-server/
+│       └── metrics-server.sh
+│
+├── 02-Storage/                        # Provisionamiento de storage
+│   └── NFS-StorageClass.sh
+│
+├── 03-Apps/                           # Aplicaciones
+│   └── Argocd/
+│       └── 01-argo_cd.sh
+│
+└── docs/                              # Documentación adicional
+    ├── TROUBLESHOOTING.md
+    └── ARCHITECTURE.md
+```
+
+## 🐛 Troubleshooting
+
+### Problemas Comunes
+
+1. **Error: "kubectl: command not found"**
+   - Instala kubectl: https://kubernetes.io/docs/tasks/tools/
+
+2. **Error: "no hay conexión al cluster"**
+   ```bash
+   # Verifica tu kubeconfig
+   kubectl cluster-info
+   export KUBECONFIG=/path/to/your/kubeconfig
+   ```
+
+3. **Error en NFS Provisioner: "servidor no accesible"**
+   - Verifica que el servidor NFS esté en la misma red
+   - Comprueba que los paquetes NFS estén instalados en los nodos
+
+4. **Pods en estado Pending**
+   ```bash
+   # Ver detalles del pod
+   kubectl describe pod <pod-name> -n <namespace>
+   
+   # Verificar eventos del cluster
+   kubectl get events -A --sort-by='.lastTimestamp'
+   ```
+
+Ver más en [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)
+
+## 🔐 Seguridad
+
+> ⚠️ **IMPORTANTE**: Estos scripts están diseñados para entornos de desarrollo y testing.
+
+Para producción:
+- ✅ Cambia todas las contraseñas por defecto
+- ✅ Usa TLS en todos los servicios
+- ✅ Configura RBAC apropiado
+- ✅ No uses `--kubelet-insecure-tls` en Metrics Server
+- ✅ Protege los archivos `config.env` (ya están en `.gitignore`)
+
+## 🤝 Contribución
+
+Las contribuciones son bienvenidas. Para cambios importantes:
+
+1. Haz fork del proyecto
+2. Crea una rama para tu feature (`git checkout -b feature/NuevaCaracteristica`)
+3. Commit tus cambios (`git commit -m 'Agrega nueva característica'`)
+4. Push a la rama (`git push origin feature/NuevaCaracteristica`)
+5. Abre un Pull Request
+
+## 📝 Licencia
+
+Este proyecto está bajo licencia MIT. Ver archivo LICENSE para más detalles.
+
+## 🙏 Reconocimientos
+
+- Kubernetes Team por las excelentes herramientas
+- Helm Community por facilitar el deployment
+- Comunidad de código abierto
+
+## 📞 Soporte
+
+- 📖 [Documentación](docs/)
+- 🐛 [Reportar Bugs](issues)
+- 💡 [Solicitar Features](issues)
+
+---
+
+**Hecho con ❤️ para la comunidad de Kubernetes por GRS**

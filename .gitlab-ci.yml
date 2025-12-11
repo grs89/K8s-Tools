@@ -1,0 +1,189 @@
+# GitLab CI/CD Pipeline para K8s-Tools
+# Este pipeline valida la calidad de los scripts bash y archivos YAML
+
+stages:
+  - lint
+  - security
+  - validate
+
+# =============================================================================
+# Stage: Lint
+# =============================================================================
+
+shellcheck:
+  stage: lint
+  image: koalaman/shellcheck-alpine:latest
+  script:
+    - echo "🔍 Ejecutando ShellCheck en todos los scripts bash..."
+    - |
+      find . -name "*.sh" -type f | while read -r script; do
+        echo "Checking: $script"
+        shellcheck "$script" || exit 1
+      done
+    - echo "✅ ShellCheck completado exitosamente"
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+  allow_failure: false
+
+yamllint:
+  stage: lint
+  image: cytopia/yamllint:latest
+  script:
+    - echo "🔍 Ejecutando yamllint en archivos YAML..."
+    - |
+      # Crear configuración de yamllint
+      cat > .yamllint.yml <<EOF
+      extends: default
+      rules:
+        line-length:
+          max: 120
+          level: warning
+        comments:
+          min-spaces-from-content: 1
+      ignore: |
+        old/
+        .git/
+      EOF
+    - yamllint -c .yamllint.yml .
+    - echo "✅ yamllint completado exitosamente"
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+  allow_failure: true  # warnings no bloquean el pipeline
+
+# =============================================================================
+# Stage: Security
+# =============================================================================
+
+detect-secrets:
+  stage: security
+  image: python:3.11-slim
+  before_script:
+    - pip install detect-secrets
+  script:
+    - echo "🔐 Buscando secretos hardcodeados..."
+    - |
+      detect-secrets scan --baseline .secrets.baseline || true
+      if detect-secrets scan --exclude-files 'old/.*' --exclude-files '\.git/.*'; then
+        echo "✅ No se detectaron secretos hardcodeados"
+      else
+        echo "❌ Se detectaron posibles secretos en el código"
+        echo "Revisa los archivos marcados y asegúrate de que no contengan información sensible"
+        exit 1
+      fi
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+  allow_failure: true  # Por ahora solo warning
+
+check-gitignore:
+  stage: security
+  image: alpine:latest
+  script:
+    - echo "🔍 Verificando que archivos sensibles estén en .gitignore..."
+    - |
+      if [ -f "config.env" ]; then
+        echo "❌ ERROR: config.env existe y debería estar en .gitignore"
+        exit 1
+      fi
+    - |
+      if grep -q "config.env" .gitignore; then
+        echo "✅ config.env está en .gitignore"
+      else
+        echo "❌ config.env NO está en .gitignore"
+        exit 1
+      fi
+    - echo "✅ Verificación de .gitignore completada"
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+
+# =============================================================================
+# Stage: Validate
+# =============================================================================
+
+validate-syntax:
+  stage: validate
+  image: bash:latest
+  script:
+    - echo "🔍 Validando sintaxis bash de todos los scripts..."
+    - |
+      find . -name "*.sh" -type f | while read -r script; do
+        echo "Validating: $script"
+        bash -n "$script" || exit 1
+      done
+    - echo "✅ Sintaxis bash validada exitosamente"
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+
+check-versions:
+  stage: validate
+  image: alpine:latest
+  script:
+    - echo "🔍 Verificando que versions.conf existe y tiene contenido..."
+    - |
+      if [ ! -f "versions.conf" ]; then
+        echo "❌ versions.conf no existe"
+        exit 1
+      fi
+    - |
+      if [ ! -f "config.env.example" ]; then
+        echo "❌ config.env.example no existe"
+        exit 1
+      fi
+    - echo "✅ Archivos de configuración existen"
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+
+documentation-check:
+  stage: validate
+  image: node:alpine
+  before_script:
+    - npm install -g markdownlint-cli
+  script:
+    - echo "🔍 Validando formato de archivos Markdown..."
+    - |
+      markdownlint '**/*.md' --ignore node_modules --ignore old || true
+    - echo "✅ Documentación verificada"
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+  allow_failure: true
+
+# =============================================================================
+# Optional: Integration Tests (requiere cluster de test)
+# =============================================================================
+
+# integration-test:
+#   stage: test
+#   image: bitnami/kubectl:latest
+#   script:
+#     - echo "🧪 Ejecutando tests de integración..."
+#     - # Aquí irían tests en un cluster de prueba
+#     - # Por ejemplo, instalar componentes y verificar que funcionan
+#   rules:
+#     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+#     - when: manual
+#   allow_failure: true
+
+# =============================================================================
+# Variables Globales
+# =============================================================================
+
+variables:
+  # Deshabilitar git submodules si no se usan
+  GIT_SUBMODULE_STRATEGY: none
+  # Cache para pip
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+# =============================================================================
+# Cache Configuration
+# =============================================================================
+
+cache:
+  paths:
+    - .cache/pip
+  key: ${CI_COMMIT_REF_SLUG}
